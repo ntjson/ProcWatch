@@ -35,7 +35,7 @@ Upload Speed:   450 KB/s
 
 1.  **CPU Calculation:**
     The program takes two snapshots of `/proc/stat`. It sums the total Jiffies (time units) and the Idle Jiffies. By calculating the difference (Delta) between the two snapshots, it derives the precise CPU load percentage:
-    $ \text{Usage} = \frac{\Delta\text{Total} - \Delta\text{Idle}}{\Delta\text{Total}} $
+    $\text{Usage} = \frac{\Delta\text{Total} - \Delta\text{Idle}}{\Delta\text{Total}}$
 
 2.  **Memory Analysis:**
     Instead of simply reading "Free RAM" (which is often misleading due to caching), ProcWatch parses `/proc/meminfo` to calculate `MemTotal` and `MemAvailable`, providing a true representation of usable memory.
