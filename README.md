@@ -29,8 +29,6 @@ Upload Speed:   450 KB/s
     *   Dynamic bar charts that scale with usage.
     *   Color-coded indicators (Green < 50%, Yellow < 80%, Red > 80%).
     *   Flicker-free rendering using ANSI escape sequences.
-*   **Robust Architecture:** Uses `unsigned long long` for data counters to prevent integer overflow on long-running systems.
-
 ##  How It Works
 
 **ProcWatch** operates by reading the raw data exposed by the Linux Kernel in the `/proc` directory.
