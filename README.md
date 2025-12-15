@@ -1,44 +1,70 @@
 
 
+***
+
 # ProcWatch 📊
 
-**ProcWatch** is a lightweight, real-time system monitor for Linux (and WSL) written in pure C++. 
+**ProcWatch** is a high-performance, lightweight system monitor for Linux and WSL (Windows Subsystem for Linux), written entirely in modern C++. 
 
-It mimics the functionality of tools like `top` or `htop` by interacting directly with the Linux Kernel via the `/proc` virtual filesystem. It demonstrates how to parse system files, calculate CPU deltas, and manage terminal output using ANSI escape codes.
+It provides real-time tracking of CPU usage, Memory consumption, and Network traffic by parsing the Linux Kernel's virtual filesystem directly. It features a color-coded terminal interface with visual bar charts, designed to be a dependency-free alternative to tools like `htop`.
 
-## Features
-*   **Real-time Monitoring:** Updates system stats every second.
-*   **Zero Dependencies:** Written using only the C++ Standard Library (`<iostream>`, `<fstream>`, `<sstream>`).
-*   **Lightweight:** Minimal CPU footprint (it sleeps when not updating).
-*   **Under the Hood:** Reads directly from raw kernel files:
-    *   `/proc/stat` for CPU ticks.
-    *   `/proc/meminfo` for RAM calculations.
+##  Preview
 
-## How It Works
-Unlike Windows, Linux treats everything as a file. This program works by:
-1.  **CPU Calculation:** It takes two snapshots of `/proc/stat` (CPU tick counters). By comparing the difference between the "Total" ticks and "Idle" ticks over a 1-second interval, it calculates the precise CPU load percentage.
-2.  **RAM Calculation:** It parses `/proc/meminfo` to find `MemTotal` and `MemAvailable`, providing a more accurate usage metric than simply looking at "Free" memory (which ignores caching).
-3.  **Visuals:** It uses ANSI escape codes (`\033[2J`) to refresh the terminal screen smoothly without scrolling.
+```text
+CPU Usage:      [||||||              ] 32.5%
+RAM Usage:      [||||||||||||||      ] 74.2%
+Download Speed: 12054 KB/s
+Upload Speed:   450 KB/s
+```
+
+##  Features
+
+*   **Real-Time Monitoring:** Updates system metrics every second using efficient delta calculations.
+*   **Zero Dependencies:** Built using only the C++ Standard Library (`<iostream>`, `<fstream>`, `<vector>`). No external libraries required.
+*   **Kernel-Level Parsing:**
+    *   **CPU:** Calculates usage percentages by analyzing processor ticks from `/proc/stat`.
+    *   **RAM:** Determines accurate memory availability via `/proc/meminfo`.
+    *   **Network:** Aggregates real-time upload/download speeds from `/proc/net/dev`.
+*   **Visual Dashboard:**
+    *   Dynamic bar charts that scale with usage.
+    *   Color-coded indicators (Green < 50%, Yellow < 80%, Red > 80%).
+    *   Flicker-free rendering using ANSI escape sequences.
+*   **Robust Architecture:** Uses `unsigned long long` for data counters to prevent integer overflow on long-running systems.
+
+##  How It Works
+
+**ProcWatch** operates by reading the raw data exposed by the Linux Kernel in the `/proc` directory.
+
+1.  **CPU Calculation:**
+    The program takes two snapshots of `/proc/stat`. It sums the total Jiffies (time units) and the Idle Jiffies. By calculating the difference (Delta) between the two snapshots, it derives the precise CPU load percentage:
+    $$ \text{Usage} = \frac{\Delta\text{Total} - \Delta\text{Idle}}{\Delta\text{Total}} $$
+
+2.  **Memory Analysis:**
+    Instead of simply reading "Free RAM" (which is often misleading due to caching), ProcWatch parses `/proc/meminfo` to calculate `MemTotal` and `MemAvailable`, providing a true representation of usable memory.
+
+3.  **Network Throughput:**
+    It iterates through all network interfaces (excluding loopback) in `/proc/net/dev`, aggregating the total RX (Receive) and TX (Transmit) bytes. The speed is calculated by comparing the byte count growth over a 1-second interval.
 
 ##  Installation & Usage
 
 ### Prerequisites
-*   A Linux environment (Ubuntu, Fedora, Arch, etc.) or **WSL** (Windows Subsystem for Linux).
-*   A C++ Compiler (`g++` or `clang`).
+*   A Linux environment (Ubuntu, Debian, Fedora, Arch, etc.) OR **WSL**.
+*   A C++ compiler (`g++` or `clang++`).
 
-### Build and Run
+### Build Instructions
+
 1.  **Clone the repository:**
     ```bash
-    git clone https://github.com/ntjson/ProcWatch.git
+    git clone https://github.com/YOUR_USERNAME/ProcWatch.git
     cd ProcWatch
     ```
 
-2.  **Compile the code:**
+2.  **Compile the source code:**
     ```bash
     g++ main.cpp -o procwatch
     ```
 
-3.  **Run the monitor:**
+3.  **Run the application:**
     ```bash
     ./procwatch
     ```
@@ -46,16 +72,8 @@ Unlike Windows, Linux treats everything as a file. This program works by:
 4.  **To Exit:**
     Press `Ctrl + C`.
 
-##  Preview
-```text
-CPU Usage: 12.5%
-RAM Usage: 45.2%
-```
-
-##  Future Improvements
-*   Add a bar chart visualization using terminal characters (e.g., `[|||||.....]`).
-*   Add support for monitoring individual CPU cores.
-*   Add Network upload/download speed monitoring.
+##  Contributing
+Contributions are welcome! Please feel free to submit a Pull Request.
 
 ##  License
 This project is open-source and available under the MIT License.
